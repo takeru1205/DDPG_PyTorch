@@ -39,4 +39,6 @@ for e in range(epoch):
     print('Epoch : {} / {}, Cumulative Reward : {}'.format(e, epoch, cumulative_reward))
     writer.add_scalar("reward", cumulative_reward, epoch)
 
+agent.save_model()
+
 
