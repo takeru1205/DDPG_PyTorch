@@ -9,8 +9,8 @@ class OUActionNoise(object):
         self.theta = theta
         self.dt = dt
         self.x0 = x0
-        self.x_prev = self.reset()
         self.action_dim = action_dim
+        self.x_prev = self.reset()
 
     def __call__(self):
         x = self.x_prev + self.theta * (self.mu - self.x_prev) * self.dt + \
