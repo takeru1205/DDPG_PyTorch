@@ -13,7 +13,7 @@ class ReplayMemory(object):
         self.max_size = max_size
         self.mem_ctrl = 0
 
-    def store_transition(self, state, action, reward, state_, done):
+    def store_transition(self, state, action, state_, reward, done):
         index = self.mem_ctrl % self.max_size
         self.state_memory[index] = torch.from_numpy(state)
         self.new_state_memory[index] = torch.from_numpy(state_)
@@ -33,3 +33,6 @@ class ReplayMemory(object):
         terminal = self.terminal_memory[batch]
 
         return states.to('cuda'), actions.to('cuda'), states_.to('cuda'), rewards.to('cuda'), terminal
+
+    def __len__(self):
+        return self.mem_ctrl
