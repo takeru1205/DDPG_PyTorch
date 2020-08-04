@@ -42,6 +42,9 @@ class DDPG(object):
         noise = ou_noise()
         return np.clip(action.to('cpu').detach().numpy().copy() + noise, -self.max_action, self.max_action)
 
+    def store_transition(self, state, action, state_, reward, done):
+        self.memory.store_transition(state, action, state_, reward, done)
+
     def soft_update(self, target_net, net):
         for target_param, param in zip(target_net.parameters(), net.parameters()):
             target_param.data.copy_(
@@ -49,6 +52,9 @@ class DDPG(object):
             )
 
     def update(self, batch_size=64):
+        if len(self.memory) < batch_size:
+            return
+
         states, actions, states_, rewards, terminals = self.memory.sample(batch_size)
         with torch.no_grad():
             y = rewards + self.gamma * self.target_critic(states_, self.target_actor(states_))
@@ -69,6 +75,8 @@ class DDPG(object):
         # target parameter soft update
         self.soft_update(self.target_actor, self.actor)  # update target actor network
         self.soft_update(self.target_critic, self.critic)  # update target critic network
+
+        return critic_loss.item(), j.item()  # critic_loss, actor_loss
 
     def save_model(self, path='models/'):
         torch.save(self.actor.state_dict(), path + 'actor')
