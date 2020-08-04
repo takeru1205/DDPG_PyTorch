@@ -23,7 +23,7 @@ class ReplayMemory(object):
         self.terminal_memory[index] = torch.from_numpy(np.array([1 - done]).astype(np.uint8))
         self.mem_ctrl += 1
 
-    def sample(self, batch_size):
+    def sample(self, batch_size=64):
         mem_size = min(self.mem_ctrl, self.max_size)
         batch = np.random.choice(mem_size, batch_size)
 
