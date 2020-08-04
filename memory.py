@@ -8,7 +8,7 @@ class ReplayMemory(object):
         self.max_size = max_size
         self.state_memory = torch.zeros((self.max_size, state_dim), dtype=torch.float)
         self.new_state_memory = torch.zeros((self.max_size, state_dim), dtype=torch.float)
-        self.action_memory = torch.zeros((self.max_size, act_dim), dtype=torch.uint8)
+        self.action_memory = torch.zeros((self.max_size, act_dim), dtype=torch.float)
         self.reward_memory = torch.zeros(self.max_size, dtype=torch.float)
         self.terminal_memory = torch.zeros(self.max_size, dtype=torch.uint8)
         self.mem_ctrl = 0
