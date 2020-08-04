@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+
 from utils import layer_init, actor_last_layer_init, critic_last_layer_init
 
 
@@ -30,8 +31,8 @@ class Critic(nn.Module):
         super(Critic, self).__init__()
         self.fc1 = nn.Linear(state_dim, 400)
         self.fc2 = nn.Linear(400, 300)
-        self.fc3 = nn.Linear(300+action_dim, 1)
-        
+        self.fc3 = nn.Linear(300 + action_dim, 1)
+
         # Initialize critic weights
         layer_init(self.fc1)
         layer_init(self.fc2)
@@ -42,7 +43,3 @@ class Critic(nn.Module):
         x = F.softplus(self.fc2(x))
         x = F.softplus(self.fc3(torch.cat([x, action])))
         return x
-
-
-
-
