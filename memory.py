@@ -5,12 +5,12 @@ import numpy as np
 
 class ReplayMemory(object):
     def __init__(self, state_dim, act_dim, max_size=int(10e+6)):
-        self.state_memory = torch.zeros((self.max_size, *state_dim), dtype=torch.float)
-        self.new_state_memory = torch.zeros((self.max_size, *state_dim), dtype=torch.float)
+        self.max_size = max_size
+        self.state_memory = torch.zeros((self.max_size, state_dim), dtype=torch.float)
+        self.new_state_memory = torch.zeros((self.max_size, state_dim), dtype=torch.float)
         self.action_memory = torch.zeros((self.max_size, act_dim), dtype=torch.uint8)
         self.reward_memory = torch.zeros(self.max_size, dtype=torch.float)
         self.terminal_memory = torch.zeros(self.max_size, dtype=torch.uint8)
-        self.max_size = max_size
         self.mem_ctrl = 0
 
     def store_transition(self, state, action, state_, reward, done):
