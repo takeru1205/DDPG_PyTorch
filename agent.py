@@ -70,19 +70,19 @@ class DDPG(object):
         # Update Critic
         q = self.critic(states, actions)
         critic_loss = self.criterion(q, y)
-        if self.writer:
-            self.writer.add_scalar("loss/critic", critic_loss.item(), time_step)
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
+        if self.writer:
+            self.writer.add_scalar("loss/critic", critic_loss.item(), time_step)
 
         # Update Actor (Policy Gradient)
         actor_loss = -1 * torch.mean(self.critic(states, self.actor(states)))
-        if self.writer:
-            self.writer.add_scalar("loss/actor", actor_loss.item(), time_step)
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
+        if self.writer:
+            self.writer.add_scalar("loss/actor", actor_loss.item(), time_step)
 
         # target parameter soft update
         self.soft_update(self.target_actor, self.actor)  # update target actor network
