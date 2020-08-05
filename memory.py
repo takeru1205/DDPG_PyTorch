@@ -39,7 +39,7 @@ class ReplayMemory(object):
         states_ = self.new_state_memory[batch]
         terminal = self.terminal_memory[batch]
 
-        return states.to('cuda'), actions.to('cuda'), states_.to('cuda'), rewards.to('cuda'), terminal
+        return states.to('cuda'), actions.to('cuda'), states_.to('cuda'), rewards.to('cuda'), terminal.to('cuda')
 
     def __len__(self):
         return self.mem_ctrl
