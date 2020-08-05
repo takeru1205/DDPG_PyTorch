@@ -11,7 +11,7 @@ class Actor(nn.Module):
     Actor Network
     """
 
-    def __init__(self, state_dim, action_dim, max_action):
+    def __init__(self, state_dim, action_dim):
         super(Actor, self).__init__()
         self.fc1 = nn.Linear(state_dim, 400)
         self.fc2 = nn.Linear(400, 300)
@@ -22,12 +22,10 @@ class Actor(nn.Module):
         layer_init(self.fc2)
         actor_last_layer_init(self.fc3)
 
-        self.max_action = max_action
-
     def forward(self, x):
         x = F.softplus(self.fc1(x))
         x = F.softplus(self.fc2(x))
-        x = torch.tanh(self.fc3(x)) * self.max_action  # bounded max action
+        x = torch.tanh(self.fc3(x))
         return x
 
 
@@ -50,5 +48,5 @@ class Critic(nn.Module):
     def forward(self, x, action):
         x = F.softplus(self.fc1(x))
         x = F.softplus(self.fc2(x))
-        x = F.softplus(self.fc3(torch.cat([x, action], dim=1)))
+        x = self.fc3(torch.cat([x, action], dim=1))
         return x
