@@ -45,7 +45,7 @@ class DDPG(object):
     def get_action(self, state, ou_noise):
         action = self.actor(torch.from_numpy(state).to('cuda', torch.float))
         noise = ou_noise()
-        return np.clip(action.to('cpu').detach().numpy().copy() + noise, -self.max_action, self.max_action)
+        return np.clip(action.to('cpu').detach().numpy().copy() + noise, -1, 1)
 
     def store_transition(self, state, action, state_, reward, done):
         self.memory.store_transition(state, action, state_, reward, done)
@@ -64,7 +64,8 @@ class DDPG(object):
 
         states, actions, states_, rewards, terminals = self.memory.sample(batch_size)
         with torch.no_grad():
-            y = rewards.unsqueeze(1) + self.gamma * self.target_critic(states_, self.target_actor(states_))
+            y = rewards.unsqueeze(1) + self.gamma * \
+                self.target_critic(states_, self.target_actor(states_).clamp(-1, 1))
 
         # Update Critic
         q = self.critic(states, actions)
@@ -76,10 +77,11 @@ class DDPG(object):
         self.critic_optimizer.step()
 
         # Update Actor (Policy Gradient)
-        j = self.critic(states, actions) * self.actor(states)
-        j = -1 * j.mean()  # multiply -1 for gradient ascent
+        j = -1 * torch.mean(self.critic(states, actions) * self.actor(states))
+        # j = -1 * j.mean()  # multiply -1 for gradient ascent
+        # j = j.mean()  # multiply -1 for gradient ascent
         if self.writer:
-            self.writer.add_scalar("loss/actor", j, time_step)
+            self.writer.add_scalar("loss/actor", -j, time_step)
         self.actor_optimizer.zero_grad()
         j.backward()
         self.actor_optimizer.step()
