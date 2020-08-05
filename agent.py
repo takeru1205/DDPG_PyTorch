@@ -65,11 +65,11 @@ class DDPG(object):
         states, actions, states_, rewards, terminals = self.memory.sample(batch_size)
         with torch.no_grad():
             y = rewards.unsqueeze(1) + (1 - terminals).unsqueeze(1) * self.gamma * \
-                self.target_critic(states_, self.target_actor(states_).clamp(-1, 1))
+                self.target_critic(states_, self.target_actor(states_))
 
         # Update Critic
         q = self.critic(states, actions)
-        critic_loss = self.criterion(y, q)
+        critic_loss = self.criterion(q, y)
         if self.writer:
             self.writer.add_scalar("loss/critic", critic_loss.item(), time_step)
         self.critic_optimizer.zero_grad()
@@ -77,7 +77,7 @@ class DDPG(object):
         self.critic_optimizer.step()
 
         # Update Actor (Policy Gradient)
-        actor_loss = -1 * torch.mean(self.critic(states, self.actor(states).clamp(-1, 1)))
+        actor_loss = -1 * torch.mean(self.critic(states, self.actor(states)))
         if self.writer:
             self.writer.add_scalar("loss/actor", actor_loss.item(), time_step)
         self.actor_optimizer.zero_grad()
