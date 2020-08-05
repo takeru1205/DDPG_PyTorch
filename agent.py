@@ -9,13 +9,16 @@ from const import *
 
 
 class DDPG(object):
+    """
+    Deep Deterministic Policy Gradient Algorithm
+    """
+
     def __init__(self, env, writer=None):
         self.env = env
         self.writer = writer
 
         state_dim = env.observation_space.shape[0]
         action_dim = env.action_space.shape[0]
-
         self.max_action = env.action_space.high[0]
 
         # Randomly initialize network parameter
@@ -35,6 +38,7 @@ class DDPG(object):
         self.criterion = nn.MSELoss()
         self.tau = tau
 
+        # network parameter optimizer
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_lr)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_lr, weight_decay=weight_decay)
 
@@ -47,12 +51,14 @@ class DDPG(object):
         self.memory.store_transition(state, action, state_, reward, done)
 
     def soft_update(self, target_net, net):
+        """Target parameters soft update"""
         for target_param, param in zip(target_net.parameters(), net.parameters()):
             target_param.data.copy_(
                 self.tau * param.data + (1 - self.tau) * target_param.data
             )
 
     def update(self, time_step, batch_size=64):
+        """Network parameter update"""
         if len(self.memory) < batch_size:
             return
 
@@ -93,4 +99,3 @@ class DDPG(object):
         self.critic.load_state_dict(torch.load(path + 'critic'))
         self.target_actor.load_state_dict(torch.load(path + 'target_actor'))
         self.target_critic.load_state_dict(torch.load(path + 'target_critic'))
-

@@ -4,6 +4,13 @@ import numpy as np
 
 
 class ReplayMemory(object):
+    """
+    Replay Memory for Experience Replay.
+
+    Data sampling randomly from buffer.
+
+    """
+
     def __init__(self, state_dim, act_dim, max_size=int(10e+6)):
         self.max_size = max_size
         self.state_memory = torch.zeros((self.max_size, state_dim), dtype=torch.float)

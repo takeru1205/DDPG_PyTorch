@@ -3,6 +3,13 @@ import numpy as np
 
 
 class OUActionNoise(object):
+    """
+    Orstein-Uhleneck Process.
+
+    This stochastic process is exploration for agent.
+
+    """
+
     def __init__(self, action_dim, mu=0.0, sigma=0.2, theta=0.15, dt=1e-2, x0=None):
         self.mu = mu
         self.sigma = sigma

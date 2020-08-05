@@ -7,6 +7,10 @@ from utils import layer_init, actor_last_layer_init, critic_last_layer_init
 
 
 class Actor(nn.Module):
+    """
+    Actor Network
+    """
+
     def __init__(self, state_dim, action_dim, max_action):
         super(Actor, self).__init__()
         self.fc1 = nn.Linear(state_dim, 400)
@@ -28,6 +32,10 @@ class Actor(nn.Module):
 
 
 class Critic(nn.Module):
+    """
+    Critic Network
+    """
+
     def __init__(self, state_dim, action_dim):
         super(Critic, self).__init__()
         self.fc1 = nn.Linear(state_dim, 400)
