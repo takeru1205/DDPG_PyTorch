@@ -9,8 +9,9 @@ from const import *
 
 
 class DDPG(object):
-    def __init__(self, env):
+    def __init__(self, env, writer=None):
         self.env = env
+        self.writer = writer
 
         state_dim = env.observation_space.shape[0]
         action_dim = env.action_space.shape[0]
@@ -38,7 +39,7 @@ class DDPG(object):
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_lr, weight_decay=weight_decay)
 
     def get_action(self, state, ou_noise):
-        action = self.actor(state)
+        action = self.actor(torch.from_numpy(state).to('cuda', torch.float))
         noise = ou_noise()
         return np.clip(action.to('cpu').detach().numpy().copy() + noise, -self.max_action, self.max_action)
 
@@ -51,23 +52,28 @@ class DDPG(object):
                 self.tau * param.data + (1 - self.tau) * target_param.data
             )
 
-    def update(self, batch_size=64):
+    def update(self, time_step, batch_size=64):
         if len(self.memory) < batch_size:
             return
 
         states, actions, states_, rewards, terminals = self.memory.sample(batch_size)
         with torch.no_grad():
-            y = rewards + self.gamma * self.target_critic(states_, self.target_actor(states_))
+            y = rewards.unsqueeze(1) + self.gamma * self.target_critic(states_, self.target_actor(states_))
 
         # Update Critic
         q = self.critic(states, actions)
         critic_loss = self.criterion(y, q)
+        if self.writer:
+            self.writer.add_scalar("loss/critic", critic_loss.item(), time_step)
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
 
         # Update Actor (Policy Gradient)
-        j = -(self.critic(states, actions) * self.actor(states)) / batch_size  # multiply -1 for gradient ascent
+        j = self.critic(states, actions) * self.actor(states)
+        j = -1 * j.mean()  # multiply -1 for gradient ascent
+        if self.writer:
+            self.writer.add_scalar("loss/actor", j, time_step)
         self.actor_optimizer.zero_grad()
         j.backward()
         self.actor_optimizer.step()
@@ -75,8 +81,6 @@ class DDPG(object):
         # target parameter soft update
         self.soft_update(self.target_actor, self.actor)  # update target actor network
         self.soft_update(self.target_critic, self.critic)  # update target critic network
-
-        return critic_loss.item(), j.item()  # critic_loss, actor_loss
 
     def save_model(self, path='models/'):
         torch.save(self.actor.state_dict(), path + 'actor')
