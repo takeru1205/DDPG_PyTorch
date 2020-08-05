@@ -77,7 +77,7 @@ class DDPG(object):
         self.critic_optimizer.step()
 
         # Update Actor (Policy Gradient)
-        j = torch.mean(self.critic(states, actions) * self.actor(states))
+        j = -1 * torch.mean(self.critic(states, actions) * self.actor(states))
         if self.writer:
             self.writer.add_scalar("loss/actor", j, time_step)
         self.actor_optimizer.zero_grad()
