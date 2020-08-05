@@ -64,7 +64,7 @@ class DDPG(object):
 
         states, actions, states_, rewards, terminals = self.memory.sample(batch_size)
         with torch.no_grad():
-            y = rewards.unsqueeze(1) + (1 - terminals).unsqueeze(1) * self.gamma * \
+            y = rewards.unsqueeze(1) + terminals.unsqueeze(1) * self.gamma * \
                 self.target_critic(states_, self.target_actor(states_))
 
         # Update Critic
