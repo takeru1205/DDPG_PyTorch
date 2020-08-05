@@ -22,11 +22,11 @@ class DDPG(object):
         self.max_action = env.action_space.high[0]
 
         # Randomly initialize network parameter
-        self.actor = Actor(state_dim, action_dim, self.max_action).to('cuda')
+        self.actor = Actor(state_dim, action_dim).to('cuda')
         self.critic = Critic(state_dim, action_dim).to('cuda')
 
         # Initialize target network parameter
-        self.target_actor = Actor(state_dim, action_dim, env.action_space.high[0]).to('cuda')
+        self.target_actor = Actor(state_dim, action_dim).to('cuda')
         self.target_actor.load_state_dict(self.actor.state_dict())
         self.target_critic = Critic(state_dim, action_dim).to('cuda')
         self.target_critic.load_state_dict(self.critic.state_dict())
@@ -77,11 +77,9 @@ class DDPG(object):
         self.critic_optimizer.step()
 
         # Update Actor (Policy Gradient)
-        j = -1 * torch.mean(self.critic(states, actions) * self.actor(states))
-        # j = -1 * j.mean()  # multiply -1 for gradient ascent
-        # j = j.mean()  # multiply -1 for gradient ascent
+        j = torch.mean(self.critic(states, actions) * self.actor(states))
         if self.writer:
-            self.writer.add_scalar("loss/actor", -j, time_step)
+            self.writer.add_scalar("loss/actor", j, time_step)
         self.actor_optimizer.zero_grad()
         j.backward()
         self.actor_optimizer.step()
