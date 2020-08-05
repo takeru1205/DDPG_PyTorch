@@ -23,7 +23,7 @@ class Actor(nn.Module):
     def forward(self, x):
         x = F.softplus(self.fc1(x))
         x = F.softplus(self.fc2(x))
-        x = F.tanh(self.fc3(x)) * self.max_action  # bounded max action
+        x = torch.tanh(self.fc3(x)) * self.max_action  # bounded max action
         return x
 
 
@@ -42,5 +42,5 @@ class Critic(nn.Module):
     def forward(self, x, action):
         x = F.softplus(self.fc1(x))
         x = F.softplus(self.fc2(x))
-        x = F.softplus(self.fc3(torch.cat([x, action])))
+        x = F.softplus(self.fc3(torch.cat([x, action], dim=1)))
         return x
