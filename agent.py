@@ -42,9 +42,9 @@ class DDPG(object):
         self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=actor_lr)
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_lr, weight_decay=weight_decay)
 
-    def get_action(self, state, ou_noise):
+    def get_action(self, state, ou_noise, timestep):
         action = self.actor(torch.from_numpy(state).to('cuda', torch.float))
-        noise = ou_noise()
+        noise = ou_noise(timestep)
         return np.clip(action.to('cpu').detach().numpy().copy() + noise, -1, 1)
 
     def store_transition(self, state, action, state_, reward, done):
