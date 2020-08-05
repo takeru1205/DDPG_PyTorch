@@ -28,7 +28,7 @@ for e in range(epoch):
     for timestep in range(200):
         action = agent.get_action(state, noise, timestep)
         state_, reward, done, _ = env.step(action * env.action_space.high[0])
-        env.render()
+        # env.render()
         agent.store_transition(state, action, state_, reward, done)
 
         cumulative_reward += reward
