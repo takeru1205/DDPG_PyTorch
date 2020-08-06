@@ -5,7 +5,7 @@ import torch.nn as nn
 
 def layer_init(layer):
     denominator = math.sqrt(layer.in_features)
-    nn.init.uniform_(layer.weight, -1/denominator, 1/denominator)
+    nn.init.uniform_(layer.weight, -1 / denominator, 1 / denominator)
 
 
 def actor_last_layer_init(layer):
