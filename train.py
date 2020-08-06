@@ -6,7 +6,6 @@ from torch.utils.tensorboard import SummaryWriter
 from agent import DDPG
 from exploration import OUActionNoise
 
-
 epoch = 2000
 env = gym.make('Pendulum-v0')
 
@@ -40,5 +39,3 @@ for e in range(epoch):
     writer.add_scalar("reward", cumulative_reward, e)
 
 agent.save_model()
-
-
