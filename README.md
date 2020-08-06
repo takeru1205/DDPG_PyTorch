@@ -11,4 +11,6 @@ Continuous control with deep reinforcement learning ([DDPG](https://arxiv.org/ab
 
 ## Result
 **not pixel inputs**
+
+
 ![gif](figure/gym_animation.gif)
