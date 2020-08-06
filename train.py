@@ -7,7 +7,7 @@ from agent import DDPG
 from exploration import OUActionNoise
 
 
-epoch = 500
+epoch = 2000
 env = gym.make('Pendulum-v0')
 
 # seed
@@ -32,7 +32,6 @@ for e in range(epoch):
         agent.store_transition(state, action, state_, reward, done)
 
         state = state_
-
         cumulative_reward += reward
 
         agent.update(all_timesteps)
