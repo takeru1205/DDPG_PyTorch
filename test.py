@@ -1,7 +1,6 @@
 import gym
 from agent import DDPG
 
-epoch = 500
 env = gym.make('Pendulum-v0')
 
 agent = DDPG(env)
