@@ -46,8 +46,10 @@ class DDPG(object):
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_lr, weight_decay=weight_decay)
 
     def get_action(self, state, ou_noise=None, timestep=None):
+        # When test
         if ou_noise is None:
             return self.actor(torch.from_numpy(state).to('cuda', torch.float)).to('cpu').detach().numpy().copy()
+        # When train
         action = self.actor(torch.from_numpy(state).to('cuda', torch.float))
         noise = ou_noise(timestep)
         return np.clip(action.to('cpu').detach().numpy().copy() + noise, -1, 1)
@@ -69,11 +71,12 @@ class DDPG(object):
 
         states, actions, states_, rewards, terminals = self.memory.sample(batch_size)
 
-        # Update Critic
+        # Calculate expected value
         with torch.no_grad():
             y = rewards.unsqueeze(1) + terminals.unsqueeze(1) * self.gamma * \
                 self.target_critic(states_, self.target_actor(states_))
 
+        # Update Critic
         q = self.critic(states, actions)
         critic_loss = self.criterion(q, y)
         self.critic_optimizer.zero_grad()
