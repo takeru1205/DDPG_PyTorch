@@ -21,9 +21,6 @@ class DDPG(object):
         action_dim = env.action_space.shape[0]
         self.max_action = env.action_space.high[0]
 
-        self.state_mean = 0.5 * (self.env.observation_space.high + self.env.observation_space.low)
-        self.state_halfwidth = 0.5 * (self.env.observation_space.high - self.env.observation_space.low)
-
         # Randomly initialize network parameter
         self.actor = Actor(state_dim, action_dim).to('cuda')
         self.critic = Critic(state_dim, action_dim).to('cuda')
