@@ -21,6 +21,9 @@ class DDPG(object):
         action_dim = env.action_space.shape[0]
         self.max_action = env.action_space.high[0]
 
+        self.state_mean = 0.5 * (self.env.observation_space.high + self.env.observation_space.low)
+        self.state_halfwidth = 0.5 * (self.env.observation_space.high - self.env.observation_space.low)
+
         # Randomly initialize network parameter
         self.actor = Actor(state_dim, action_dim).to('cuda')
         self.critic = Critic(state_dim, action_dim).to('cuda')
@@ -43,12 +46,16 @@ class DDPG(object):
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=critic_lr, weight_decay=weight_decay)
 
     def get_action(self, state, ou_noise, timestep):
-        action = self.actor(torch.from_numpy(state).to('cuda', torch.float))
+        action = self.actor(torch.from_numpy(self.normalize_state(state)).to('cuda', torch.float))
         noise = ou_noise(timestep)
         return np.clip(action.to('cpu').detach().numpy().copy() + noise, -1, 1)
 
     def store_transition(self, state, action, state_, reward, done):
-        self.memory.store_transition(state, action, state_, reward, done)
+        self.memory.store_transition(self.normalize_state(state), action, self.normalize_state(state_), reward, done)
+
+    def normalize_state(self, state):
+        state = (state - self.state_mean) / self.state_halfwidth
+        return state
 
     def soft_update(self, target_net, net):
         """Target parameters soft update"""
