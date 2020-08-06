@@ -31,6 +31,8 @@ for e in range(epoch):
         # env.render()
         agent.store_transition(state, action, state_, reward, done)
 
+        state = state_
+
         cumulative_reward += reward
 
         agent.update(all_timesteps)
