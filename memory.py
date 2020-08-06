@@ -23,8 +23,8 @@ class ReplayMemory(object):
     def store_transition(self, state, action, state_, reward, done):
         index = self.mem_ctrl % self.max_size
         self.state_memory[index] = torch.from_numpy(state)
-        self.new_state_memory[index] = torch.from_numpy(state_)
         self.action_memory[index] = torch.tensor(action)
+        self.new_state_memory[index] = torch.from_numpy(state_)
         self.reward_memory[index] = torch.from_numpy(np.array([reward]).astype(np.float))
         self.terminal_memory[index] = torch.from_numpy(np.array([1 - done]).astype(np.uint8))
         self.mem_ctrl += 1
