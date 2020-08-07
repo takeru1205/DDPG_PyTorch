@@ -13,7 +13,7 @@ class DDPG(object):
     Deep Deterministic Policy Gradient Algorithm
     """
 
-    def __init__(self, env, writer=None):
+    def __init__(self, env, writer=None, memory=True):
         self.env = env
         self.writer = writer
 
@@ -22,17 +22,18 @@ class DDPG(object):
         self.max_action = env.action_space.high[0]
 
         # Randomly initialize network parameter
-        self.actor = Actor(state_dim, action_dim).to('cuda')
-        self.critic = Critic(state_dim, action_dim).to('cuda')
+        self.actor = Actor(action_dim, input_width, input_height).to('cuda')
+        self.critic = Critic(action_dim, input_width, input_height).to('cuda')
 
         # Initialize target network parameter
-        self.target_actor = Actor(state_dim, action_dim).to('cuda')
+        self.target_actor = Actor(action_dim, input_width, input_height).to('cuda')
         self.target_actor.load_state_dict(self.actor.state_dict())
-        self.target_critic = Critic(state_dim, action_dim).to('cuda')
+        self.target_critic = Critic(action_dim, input_width, input_height).to('cuda')
         self.target_critic.load_state_dict(self.critic.state_dict())
 
         # Replay memory
-        self.memory = ReplayMemory(state_dim, action_dim)
+        if memory:
+            self.memory = ReplayMemory(action_dim, [input_channel, input_width, input_height])
 
         self.gamma = gamma
         self.criterion = nn.MSELoss()
@@ -79,7 +80,7 @@ class DDPG(object):
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
         self.critic_optimizer.step()
-        if self.writer:
+        if self.writer and time_step % 1000 == 0:
             self.writer.add_scalar("loss/critic", critic_loss.item(), time_step)
 
         # Update Actor (Policy Gradient)
@@ -87,7 +88,7 @@ class DDPG(object):
         self.actor_optimizer.zero_grad()
         actor_loss.backward()
         self.actor_optimizer.step()
-        if self.writer:
+        if self.writer and time_step % 1000 == 0:
             self.writer.add_scalar("loss/actor", actor_loss.item(), time_step)
 
         # target parameter soft update

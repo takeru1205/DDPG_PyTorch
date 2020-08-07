@@ -11,10 +11,10 @@ class ReplayMemory(object):
 
     """
 
-    def __init__(self, state_dim, act_dim, max_size=int(1e+6)):
+    def __init__(self, act_dim, state_dim, max_size=int(1e+6)):
         self.max_size = max_size
-        self.state_memory = torch.zeros((self.max_size, state_dim), dtype=torch.float)
-        self.new_state_memory = torch.zeros((self.max_size, state_dim), dtype=torch.float)
+        self.state_memory = torch.zeros((self.max_size, *state_dim), dtype=torch.float)
+        self.new_state_memory = torch.zeros((self.max_size, *state_dim), dtype=torch.float)
         self.action_memory = torch.zeros((self.max_size, act_dim), dtype=torch.float)
         self.reward_memory = torch.zeros(self.max_size, dtype=torch.float)
         self.terminal_memory = torch.zeros(self.max_size, dtype=torch.uint8)
