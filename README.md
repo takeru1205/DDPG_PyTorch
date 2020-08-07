@@ -6,11 +6,20 @@ Continuous control with deep reinforcement learning ([DDPG](https://arxiv.org/ab
 
 ## Milestone
 1. [x] learn from **not** pixel inputs.
-2. [ ] learn from raw pixel inputs.
+2. [x] learn from raw pixel inputs.
 
 
 ## Result
 **not pixel inputs**
 
+train about 300 epochs.
 
-![gif](figure/gym_animation.gif)
+
+![gif](figure/low_dimensional.gif)
+
+
+**pixel inputs**
+
+train about 1000 epochs.
+
+![gif](figure/high_dimensional.gif)
